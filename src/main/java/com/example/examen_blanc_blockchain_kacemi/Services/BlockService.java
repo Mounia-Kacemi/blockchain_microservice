@@ -6,10 +6,9 @@ import com.example.examen_blanc_blockchain_kacemi.Entities.Transaction;
 import java.util.List;
 
 public interface BlockService {
-    String calculateBlockHash(Block block);
+    public String calculateBlockHash(Block block);
 
-    public String mineBlock(int difficulty, Block block);
-    public boolean addTransaction(Transaction transaction);
+    public void mineBlock(int difficulty, Block block);
+    public Block createBlock(List<Transaction> transactions);
 
-    List<Block> findAll();
 }

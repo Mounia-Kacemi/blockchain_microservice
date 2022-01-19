@@ -3,66 +3,61 @@ package com.example.examen_blanc_blockchain_kacemi.Services;
 import com.example.examen_blanc_blockchain_kacemi.Entities.Block;
 import com.example.examen_blanc_blockchain_kacemi.Entities.Transaction;
 import com.example.examen_blanc_blockchain_kacemi.Repositories.BlockRepository;
-import org.apache.logging.log4j.Logger;
+import com.example.examen_blanc_blockchain_kacemi.mappers.BlockMapper;
+import com.google.common.hash.Hashing;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.UUID;
 
+@Service
 public class ImplBlockService implements BlockService {
-private BlockRepository blockRepository;
-private Block block;
 
-    public ImplBlockService(BlockRepository blockRepository){
+   // private BlockMapper blockMapper;
+    private BlockRepository blockRepository;
 
-    this.blockRepository=blockRepository;
-}
+    public ImplBlockService(BlockRepository blockRepository) {
+       // this.blockMapper = blockMapper;
+        this.blockRepository = blockRepository;
+    }
+
+    @Override
+    public Block createBlock(List<Transaction> transactions) {
+        Block block=new Block();
+        block.setTransactions(transactions);
+        block.setDate_creat(new Date());
+        block.setNonce(0);
+        block.setId(UUID.randomUUID().toString());
+        blockRepository.save(block);
+        return block;
+
+    }
 
     @Override
     public String calculateBlockHash(Block block) {
-        String dataToHash = block.getPreviousHash()
-                + block.getDate_creat()
-                + Integer.toString(block.getNonce())
-                ;
-        MessageDigest digest = null;
-        byte[] bytes = null;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-            bytes = digest.digest(dataToHash.getBytes(StandardCharsets.UTF_8));
-        } catch (NoSuchAlgorithmException ex) {
-        }
-        StringBuffer buffer = new StringBuffer();
-        for (byte b : bytes) {
-            buffer.append(String.format("%02x", b));
-        }
-        return buffer.toString();
-    }
-    @Override
-    public String mineBlock(int difficulty,Block block) {
-        String prefixString = new String(new char[difficulty]).replace('\0', '0');
-        String hash = block.getHash();
 
-        int iteration =0;
-        while (!hash.substring(0,difficulty).equals(prefixString)) {
-            System.out.println(iteration++);
+        String toHash=block.getPreviousHash()+block.getNonce()+block.getTransactions().hashCode();
+        return  Hashing.sha256()
+                .hashString(toHash, StandardCharsets.UTF_8)
+                .toString();
+
+    }
+
+    @Override
+    public void mineBlock(int difficulty,Block block) {
+        String zeros=new String(new char[difficulty]).replace('\0','0');
+        while(true){
+            String hash=calculateBlockHash(block);
             block.setNonce(block.getNonce()+1);
-            hash = this.calculateBlockHash(block);
+            if(hash.substring(0,difficulty).equals(zeros)){
+                block.setHash(hash);
+                return ;
+            }
         }
-        System.out.println(hash);
-        return hash;
-    }
 
-    @Override
-    public boolean addTransaction(Transaction transaction) {
-        return false;
-    }
-
-    @Override
-    public List<Block> findAll() {
-        return blockRepository.findAll();
     }
 }

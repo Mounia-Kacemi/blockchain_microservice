@@ -18,11 +18,11 @@ import java.util.List;
 public class Blockchain {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public String id;
-    public String nom ;
-    public Date date;
-    public int difficulte;
-    public double miningReward;
+    private String id;
+    private String nom ;
+    private Date date;
+    private int difficulte;
+    private double miningReward;
     @OneToMany
     List<Block> blocks;
 

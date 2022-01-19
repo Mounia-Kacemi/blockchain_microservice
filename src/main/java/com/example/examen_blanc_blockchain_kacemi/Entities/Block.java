@@ -19,13 +19,14 @@ public class Block {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
+    private Date date_creat;
     private String hash;
     private String previousHash;
-    private Date date_creat;
     private int nonce;
     @OneToMany
-    public ArrayList<Transaction> transactions ;
-    @ManyToOne
-    Blockchain blockchain;
+    public List<Transaction> transactions ;
 
+  /*  @ManyToOne
+    Blockchain blockchain;
+*/
 }

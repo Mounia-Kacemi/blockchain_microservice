@@ -15,11 +15,11 @@ import java.util.Date;
 @ToString
 public class Transaction {
    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public String id;
-    public Date date_trans;
-    public String adressSource ;
-    public String adressDest;
-    public double montant;
+   private String id;
+   private Date date_trans;
+   private String adressSource ;
+   private String adressDest;
+   private double montant;
     @ManyToOne
  Block block;
 }
